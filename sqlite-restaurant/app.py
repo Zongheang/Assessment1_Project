@@ -41,14 +41,6 @@ def display_beer_bill(table_number, total_amount, payment_status):
     print("🍻 Beer-Inspired Bill 🍻")
     print("===============================================")
     print(f"Table Number: {table_number}")
-
-    # Ensure total_amount is a float for proper formatting
-    try:
-        total_amount = float(total_amount)
-    except ValueError:
-        print("Invalid total amount format!")
-        return
-
     print(f"Total Amount: ${total_amount:.2f}")
     print(f"Payment Status: {payment_status}")
     print("===============================================")
@@ -59,6 +51,7 @@ def display_beer_bill(table_number, total_amount, payment_status):
 def main():
     """Main function to run the Restaurant Management System."""
     init_db()  # Initialize the database
+
     while True:
         main_menu()  # Display the main menu
         choice = input("Enter your choice: ")
@@ -68,9 +61,13 @@ def main():
             table_number = int(input("Enter table number: "))
             reservation_time = input(
                 "Enter reservation time (YYYY-MM-DD HH:MM): ")
-            reserve_table(customer_name, table_number, reservation_time)
-            print(
-                f"\nReservation confirmed for {customer_name} at table {table_number} on {reservation_time}.\n")
+
+            if reserve_table(customer_name, table_number, reservation_time):
+                print(
+                    f"\nReservation confirmed for {customer_name} at table {table_number} on {reservation_time}.\n")
+            else:
+                print(
+                    f"\nTable {table_number} is already reserved at {reservation_time}. Please choose a different time or table.\n")
 
         elif choice == "2":
             reservations = view_reservations()
@@ -101,9 +98,16 @@ def main():
         elif choice == "5":
             table_number = int(input("Enter table number: "))
             total_amount = generate_bill(table_number)
-            print(f"\nGenerating your bill for table {table_number}...\n")
-            display_beer_bill(table_number, total_amount, "Pending")
-            print("\nYour bill has been generated. Please proceed with the payment.\n")
+
+            # Check if total_amount is 0 (indicating the table number wasn't found)
+            if total_amount == 0:
+                print(
+                    f"\n❌ Error: No reservations found for table {table_number}. Bill cannot be generated.\n")
+            else:
+                print(f"\nGenerating your bill for table {table_number}...\n")
+                display_beer_bill(table_number, total_amount, "Pending")
+                print(
+                    "\nYour bill has been generated. Please proceed with the payment.\n")
 
         elif choice == "6":
             table_number = int(input("Enter table number: "))
